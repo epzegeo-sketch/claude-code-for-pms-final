@@ -106,10 +106,3 @@ Wiki comments use roles, not names: "Engineering manager" = Marcus, "Staff engin
 2. Get the ranking logic explained by Wen Li, then write it down (nobody has).
 3. Agree with Helen which Q3 items are still commitments, and reassign ownership.
 4. Standing 15 minutes with Nadia. Don't let console filter-persistence tickets eat my time.
-
-### Learned in session 2
-- Interviews (2-5 Sep; Dot, Ambrose, Halloran, Kip): "gone before I could answer" 3 of 4, alerts hard to notice 3 of 4, quiet stretches 2 of 4 (Dot, Kip), text too small 2 of 4. Halloran came mostly to talk Supply (slow requisition queue, cracked vest plate waited 11 days, failure reports go unanswered).
-- Per-responder pings: 10 responders held or rose in volume after 12 Aug; Vesper, Meteor Mite, Farlight and The Undertow fell from about 12 a week to 1-2; Corporal Ashgrove and Halfmoon fell about 25%. Release-week misses were 1-3 for most, 4-5 for the four. Ping wait and proximity weighting can't be separated in the data.
-- Tickets: 40 before 12 Aug (about 0.9 a day), 107 after (about 4 a day). Gone-before-answering starts release day from 11 handlers; quiet tickets start 17 Aug from Pruitt, Okafor, Demir and Fischer only. Dot and Kip filed no tickets. Persistent filters brought 12 new complaints and 2 thank-yous.
-- The recent-acceptance score never decays, so reverting the wait or weights probably won't free the starved responders; their scores may need a reset (my inference; Wen Li to confirm). Weekly acceptance recovering to 73% can hide them.
-- Still open: Wen Li (shared trait, scores, snapshot vs production), Ravi (per-responder numbers, time-to-accept, Aug 2025), Helen (reasoning for the 4.2 changes, Q3 commitments). Data ends 7 Sep; nothing known since. Supply has no owner; interview transcripts pair handler full names with responder household details, so check with Security (policy 4.1).
