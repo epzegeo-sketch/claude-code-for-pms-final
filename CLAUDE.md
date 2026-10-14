@@ -106,3 +106,10 @@ Wiki comments use roles, not names: "Engineering manager" = Marcus, "Staff engin
 2. Get the ranking logic explained by Wen Li, then write it down (nobody has).
 3. Agree with Helen which Q3 items are still commitments, and reassign ownership.
 4. Standing 15 minutes with Nadia. Don't let console filter-persistence tickets eat my time.
+
+Session 3 (pings vs tickets, per-responder rows):
+- Only Farlight (Linda Pruitt) and The Undertow (Desmond Okafor) filed tickets about being starved, about 10 each from 17 Aug. Aunt Dot (Vesper) and Kip (Meteor Mite) filed none; both described it only in their 3-4 Sep interviews. This corrects the "tickets match all four" line above. Only about 14% of missed pings (about 110 from 12 Aug) became "gone before I could answer" tickets, so ticket volume understates the problem.
+- The four starved responders share one thing: 4-5 missed pings in 12-16 Aug (everyone else had 3 or fewer). Area, handler, prior volume, prior acceptance and time of day don't separate them. The `responders` table does have an `area` column (one area each except Eastgate, shared by Meteor Mite and The Gale). Meteor Mite fell to 14 pings while The Gale kept 69, same area and handler.
+- Their share of all pings fell from about 28% to about 9%. Corporal Ashgrove and Halfmoon slid about 25% (10-11 to 7-9 a week) and are worth watching.
+- Pings and tickets agree: every ticket claim I could check matched the ping counts. Tickets split two thirds "quiet" to one third "gone before I could answer"; the gone-before ones came first, the quiet ones a week later. Total tickets ran 3-5x the 6.5 a week before 12 Aug.
+- I drafted a note to Helen asking which fix to lead with (stop counting missed pings against ranking, or restore the 90s wait; I lean to the first). Still open: Wen Li's confirmation and routing scores for the four on 11 and 12 Aug, Ravi's check of these numbers, and anything after 7 Sep.
