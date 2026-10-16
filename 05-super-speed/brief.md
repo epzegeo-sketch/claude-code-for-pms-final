@@ -1,13 +1,19 @@
 # A way back for responders who've gone quiet
 
 One-pager · Product, Dispatch · 16 October 2026 · Draft for Helen Achebe
+- **Owner:** PM, Rook Dispatch (me)
+- **Helen Achebe:** Director of Product; the draft is for her, and she decides on reversing the ping wait
+- **Sofia Marino:** designs the handler flag and phone screen
+- **Marcus Oyelaran:** Engineering Manager; his team builds it
+- **Ravi Menon:** owns the weekly numbers
+- **Wen Li:** Staff Engineer; confirms the mechanism and sets the recovery period
 
 ## Problem
-A responder who misses a few pings is ranked lower, so gets fewer pings, so has fewer chances to be ranked back up. Nothing tells the responder, their handler or us. After 4.2 (12 Aug) this went from rare to common: four responders fell from 28% of all pings to 9%, and 59% of their pings were missed (about 14% for everyone else, up from 2%). Only about 14% of missed pings became a ticket, so tickets understate it.
+When a responder misses a few pings, the system ranks them lower, so they get fewer pings and have no chance to climb back. Nobody is told. Since 4.2 (12 Aug), four responders have gone from 28% of all pings to 9%, and most of their pings go unanswered. Tickets show only part of it.
 
-**Vesper is one example, not the whole brief.** Vesper (handler: Aunt Dot) got 13-15 pings a week and took about 82%. After 4.2 that fell to 5, 2 and 1 a week, with one taken. Farlight, Meteor Mite and The Undertow went the same way, and Corporal Ashgrove and Halfmoon are sliding. Aunt Dot only noticed "quiet weeks". Kip had Meteor Mite (quiet) and The Gale (busy, same area) on one screen, "two different products," and could only say "hang in there."
+**Vesper is one example, not the whole brief.** Vesper (handler: Aunt Dot) used to get 13-15 pings a week. Now she gets 1-5. Aunt Dot only noticed "quiet weeks". Farlight, Meteor Mite and The Undertow went the same way, and Corporal Ashgrove and Halfmoon are sliding.
 
-**Why:** the 4.2 cut from a 90s to a 60s ping wait caused many more misses. In `history.py` a missed ping lowers the recent-acceptance score by 0.12, the same as a turn-down, and nothing restores it (a 2019 note asked whether it should). Wen Li has not yet confirmed this.
+**Why:** 4.2 cut the ping wait from 90s to 60s, so more pings were missed. The code counts a missed ping the same as a turn-down and never restores the score. Wen Li has not yet confirmed this.
 
 ## Proposal
 The system fixes this itself. Neither the responder nor the handler has to do anything.
@@ -20,11 +26,38 @@ The system fixes this itself. Neither the responder nor the handler has to do an
 Information only: a "Gone quiet" flag on the handler's card ("Vesper: 1 ping this week, usually 13-15. 5 of the last 8 were missed") and a message on the responder's phone that their place is recovering. "Mark ready" is an optional handler shortcut. Clickable: `prototype.html`.
 
 ## Success measure
-The four back to 10+ pings a week; missed pings back toward 2%; fewer "phone never goes off" and "gone before I could answer" tickets; the next drop flagged to us within days. Ravi Menon owns the weekly numbers; these are my own queries and he hasn't checked them.
+Baselines are before 4.2 (12 Aug); targets are proposed, for Helen and Ravi to confirm. Measured weekly, starting the week after the fix ships.
+
+| Measure | Now (since 12 Aug) | Target |
+|---|---|---|
+| Pings a week, the four (Vesper, Farlight, Meteor Mite, The Undertow) | 1-5 | 10+ each, within 4 weeks of shipping |
+| Pings a week, Corporal Ashgrove and Halfmoon | 7-9 | Back to 10-11 each |
+| Missed pings, everyone else | about 14% | About 2%, within 4 weeks |
+| Callout tickets a week | 3-5x normal | Back to about 6.5 a week (the level before 12 Aug) |
+| Next drop in a responder's pings | Not noticed until tickets or interviews | Alert reaches PM and engineering within 3 days |
+
+Watch time-to-accept so the longer wait doesn't cost us. Ravi Menon owns the weekly numbers; the "now" figures are my own queries and he hasn't checked them.
 
 ## Scope
-Not in this: reverting the proximity change (it stays weighted up); guaranteeing anyone a callout or sending test callouts; showing routing scores or letting handlers reorder the list; any action required of a responder; the Responder Availability Record; anything about who a responder is; mutual aid and shared cover (Q4).
-**Risks:** a longer wait holds a callout 30 seconds more per unanswered ping, so watch time-to-accept. A responder who is genuinely away is pinged again once their score recovers. 4.2 shipped the wait and proximity changes together, so restoring the wait first, then measuring, is how we learn which mattered.
+**In scope:**
+- The five fixes above, for every responder
+- The four starved responders are the worked example; Corporal Ashgrove and Halfmoon are tracked in the measures
+- The "Gone quiet" flag and the phone message are information only
+- "Mark ready" is an optional handler shortcut; nothing is required of a handler or responder
+
+**Not in this:**
+- Reverting the proximity change (it stays weighted up)
+- Guaranteeing anyone a callout or sending test callouts
+- Showing routing scores or letting handlers reorder the list
+- Any action required of a responder or handler
+- The Responder Availability Record
+- Anything about who a responder is
+- Mutual aid and shared cover (Q4)
+
+**Risks:**
+- A longer wait holds a callout 30 seconds more per unanswered ping, so watch time-to-accept
+- A responder who is genuinely away is pinged again once their score recovers
+- 4.2 shipped the wait and proximity changes together, so restoring the wait first, then measuring, is how we learn which mattered
 
 ## Open questions
 - **Helen:** comfortable reversing the ping wait? I found no written reason for 60s.

@@ -73,3 +73,27 @@ Show the responder prototype
 
 ### 20.
 Include a responder prototype screen that shows a call coming in with a timer
+
+### 21.
+I want to save a habit as something I can reuse. When I review a brief before it goes any further, here's what I actually check for: - It names who owns it - It says how we'll know it worked - The scope at the end matches the scope at the start - It explains the problem before it proposes a fix Turn that into a skill called review-checklist, so I can point it at any brief and get the same check every time, without me explaining it again
+
+### 22.
+Run review-checklist on 05-super-speed/brief.md
+
+### 23.
+Make those fixes
+
+### 24.
+put the link to the updated brief here
+
+### 25.
+Have a separate line for each stakholed listed in the intro
+
+### 26.
+Make items under Scope bulleted
+
+### 27.
+Simplify the descripion of the problem
+
+### 28.
+Schedule review-checklist to run every Monday morning, and let me know what it finds. Nothing needs to be ready for it to fire today. I'm setting the habit, not waiting on the result.
