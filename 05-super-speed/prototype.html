@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Gone quiet - prototype (not connected to Dispatch)</title>
+<style>
+body{font-family:Arial,sans-serif;margin:24px;background:#f4f4f4;color:#222}
+h1{font-size:18px} .note{font-size:13px;color:#666;margin-bottom:16px}
+.wrap{display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start}
+.card{background:#fff;border:1px solid #ccc;border-radius:6px;padding:14px;width:330px;margin-bottom:12px}
+.card h2{margin:0 0 4px;font-size:16px} .stat{font-size:13px;color:#555}
+.flag{background:#fff3cd;border:1px solid #e0b84a;border-radius:4px;padding:8px;margin:10px 0;font-size:13px}
+button{font-size:14px;padding:8px 12px;border-radius:4px;border:1px solid #888;background:#fff;cursor:pointer}
+button.primary{background:#1b5e8a;color:#fff;border-color:#1b5e8a}
+.phone{width:280px;height:420px;border:8px solid #333;border-radius:28px;background:#fff;padding:16px;box-sizing:border-box}
+.phone h3{margin-top:0;font-size:16px} .phone p{font-size:14px} .ok{color:#2e7d32;font-weight:bold}
+.hidden{display:none} .log{font-size:12px;color:#555;margin-top:8px}
+</style></head><body>
+<h1>Gone quiet: handler console and responder phone</h1>
+<div class="note">Click through. Numbers are Vesper's and The Gale's real weekly pings from the database (to 6 Sep). Nothing here is connected to Dispatch.</div>
+<div class="wrap">
+ <div>
+  <b>Handler console (Kip, Aunt Dot)</b><br><br>
+  <div class="card" id="vesper">
+   <h2>Vesper</h2><div class="stat">Handler: Aunt Dot &middot; this week: <span id="vp">1</span> ping</div>
+   <div class="flag" id="flag"><b>Gone quiet.</b> 1 ping this week, usually 13-15. 5 of the last 8 were missed.<br>
+    <small>Missed pings no longer lower their place in the order. Their place in the order has not recovered yet.</small></div>
+   <button class="primary" id="send">Send ready check</button>
+   <div class="log" id="log">A ready check is a message, not a callout. Nothing is offered to Vesper.</div>
+  </div>
+  <div class="card"><h2>The Gale</h2><div class="stat">Handler: Kip &middot; this week: 21 pings, 16 taken</div></div>
+ </div>
+ <div>
+  <b>Responder phone (Vesper)</b><br><br>
+  <div class="phone">
+   <div id="s0"><h3>Pings have been rare lately</h3>
+    <p>Some pings went unanswered after the 12 Aug update, and that moved you down the order. It was not something you did wrong, and nobody has dropped you.</p>
+    <p>Your handler can send a ready check. Waiting to hear from them.</p>
+    <button id="sim" class="hidden">Show ready check</button></div>
+   <div id="s1" class="hidden"><h3>Ready check from Aunt Dot</h3>
+    <p>Tap if you're here and your phone is working. This is not a callout. Tapping puts you back to a neutral place in the order, not the top.</p>
+    <button class="primary" id="tap">I'm here, phone works</button></div>
+   <div id="s2" class="hidden"><h3 class="ok">Thanks, you're back</h3>
+    <p>You're back in the normal order for the next callout. You may not be pinged first, but you will be considered like everyone else.</p></div>
+  </div>
+ </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+$('send').onclick=()=>{$('log').textContent='Ready check sent to Vesper. Waiting for a tap.';$('send').disabled=true;$('s0').classList.add('hidden');$('s1').classList.remove('hidden');};
+$('tap').onclick=()=>{$('s1').classList.add('hidden');$('s2').classList.remove('hidden');
+ $('flag').innerHTML='<b>Back in the order.</b> Vesper confirmed ready. Watch for pings over the next few days.';
+ $('flag').style.background='#e6f4ea';$('flag').style.borderColor='#7bb88a';$('log').textContent='Vesper tapped: here, phone works. Place in order reset to neutral.';};
+</script></body></html>
