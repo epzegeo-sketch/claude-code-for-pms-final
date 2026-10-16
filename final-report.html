@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Release 4.2: what happened, the fix, and how we stop it recurring</title>
+<style>
+:root{--ink:#1d2433;--mute:#5d6678;--bg:#f5f6f9;--card:#fff;--blue:#1b5e8a;--red:#c0392b;--amber:#d98e04;--green:#2e7d32;--line:#dfe3ea}
+*{box-sizing:border-box}
+html{scroll-snap-type:y proximity;scroll-behavior:smooth}
+body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+nav{position:fixed;top:0;left:0;right:0;background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);z-index:9;display:flex;gap:4px;padding:8px 16px;overflow-x:auto;font-size:13px}
+nav a{color:var(--mute);text-decoration:none;padding:4px 10px;border-radius:14px;white-space:nowrap}
+nav a:hover{background:#e8eef5;color:var(--blue)}
+section{min-height:100vh;padding:80px 8vw 56px;scroll-snap-align:start;display:flex;flex-direction:column;justify-content:center}
+section.dark{background:#14213a;color:#fff}
+section.dark .mute{color:#aab6cc}
+h1{font-size:clamp(34px,5.5vw,64px);line-height:1.08;margin:0 0 16px}
+h2{font-size:clamp(26px,3.6vw,40px);margin:0 0 6px}
+.kicker{text-transform:uppercase;letter-spacing:.12em;font-size:12px;color:var(--blue);font-weight:700;margin-bottom:6px}
+.dark .kicker{color:#7fc0ee}
+.mute{color:var(--mute)}
+.lead{font-size:20px;max-width:760px}
+.grid{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px}
+.big{font-size:44px;font-weight:700;line-height:1}
+.big.red{color:var(--red)}.big.green{color:var(--green)}.big.amber{color:var(--amber)}
+.label{font-size:13px;color:var(--mute);margin-top:6px}
+.prompt{background:#101826;color:#e6edf7;border-left:4px solid #7fc0ee;border-radius:6px;padding:12px 14px;font-family:Consolas,monospace;font-size:13px;white-space:pre-wrap;margin:8px 0 0}
+.ptag{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:#7fc0ee;font-weight:700;margin-top:12px}
+.finding{font-size:15px}
+.finding b.hl{color:var(--red)}
+.pill{display:inline-block;font-size:12px;padding:2px 10px;border-radius:12px;background:#e8eef5;color:var(--blue);font-weight:600}
+.pill.warn{background:#fff3cd;color:#7a5a00}
+.timeline{display:flex;gap:0;margin:26px 0;position:relative}
+.timeline .st{flex:1;text-align:center;font-size:13px;position:relative;padding-top:26px}
+.timeline .st::before{content:"";position:absolute;top:6px;left:50%;width:14px;height:14px;border-radius:50%;background:var(--blue);transform:translateX(-50%);z-index:2}
+.timeline .st::after{content:"";position:absolute;top:12px;left:0;right:0;height:2px;background:#9fb3c8}
+.timeline .st.bad::before{background:var(--red)}
+.timeline b{display:block}
+svg text{font-family:Segoe UI,Arial,sans-serif}
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0}
+.flow .box{background:#fff;color:var(--ink);border-radius:8px;padding:10px 14px;font-size:14px;max-width:210px}
+.flow .box.bad{background:#fbe3e0;border:1px solid var(--red)}
+.flow .arr{font-size:22px;color:#7fc0ee}
+.loop{font-size:13px;color:#ffb4a8;margin-top:4px}
+table{border-collapse:collapse;width:100%;font-size:14px;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#eef2f7;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+iframe{width:100%;height:560px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.mod{display:grid;grid-template-columns:140px 1fr;gap:22px}
+.modnum{font-size:80px;font-weight:800;color:#d5dde8;line-height:.9}
+.modname{font-size:13px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.1em}
+@media(max-width:700px){.mod{grid-template-columns:1fr}.modnum{font-size:48px}}
+.bar{height:14px;border-radius:7px;background:#e5e9f0;overflow:hidden;margin-top:6px}
+.bar>div{height:100%}
+.note{font-size:12px;color:var(--mute);margin-top:14px}
+.dark .note{color:#8f9db5}
+</style></head><body>
+<nav>
+<a href="#top">Start</a><a href="#what">What happened</a><a href="#mechanism">Mechanism</a><a href="#modules">Six modules</a><a href="#fix">The fix</a><a href="#skill">The skill</a><a href="#open">Still open</a>
+</nav>
+
+<section class="dark" id="top">
+<div class="kicker">Rook Dispatch · Product School lab (fictional scenario)</div>
+<h1>Release 4.2 made four responders go silent.<br>Here is how we found it, fixed it, and keep it from happening again.</h1>
+<p class="lead mute">A report from the new Dispatch PM: evidence from six sessions, the exact prompts that produced it, a clickable prototype of the fix, and the review habit that guards the next brief.</p>
+<div class="grid">
+<div class="card" style="background:#1d2d4d;border-color:#2c4170"><div class="big" style="color:#ff9b8c">76% → 54%</div><div class="label" style="color:#aab6cc">weekly acceptance, week of 12 Aug</div></div>
+<div class="card" style="background:#1d2d4d;border-color:#2c4170"><div class="big" style="color:#ffd27a">4</div><div class="label" style="color:#aab6cc">responders nearly cut out of pings</div></div>
+<div class="card" style="background:#1d2d4d;border-color:#2c4170"><div class="big" style="color:#7fe0a0">1 line</div><div class="label" style="color:#aab6cc">of config that started it: 90s → 60s</div></div>
+</div>
+</section>
+
+<section id="what">
+<div class="kicker">What happened</div>
+<h2>On 12 August the ping wait dropped from 90 to 60 seconds, and a scoring rule did the rest.</h2>
+<p class="lead">Release 4.2 changed three values: ping wait 90s → 60s, proximity weight 0.45 → 0.60, recent-acceptance weight 0.40 → 0.25. Two changes shipped together, so effects overlap, but the shorter wait is the main suspect for the misses.</p>
+<div class="timeline">
+<div class="st"><b>6 weeks</b>acceptance flat, 75–78%</div>
+<div class="st bad"><b>12 Aug</b>4.2 ships</div>
+<div class="st bad"><b>12–16 Aug</b>4–5 missed pings for each of four responders</div>
+<div class="st bad"><b>17–20 Aug</b>"my phone never goes off" tickets begin</div>
+<div class="st"><b>31 Aug</b>73%, still below baseline</div>
+</div>
+<div class="grid">
+<div class="card">
+<b>Weekly acceptance (approximate, from my queries; Ravi has not yet checked)</b>
+<svg viewBox="0 0 420 200" width="100%" role="img" aria-label="Acceptance by week">
+<line x1="40" y1="170" x2="410" y2="170" stroke="#cfd5de"/>
+<g fill="#1b5e8a"><rect x="55" y="42" width="34" height="128"/><rect x="100" y="40" width="34" height="130"/><rect x="145" y="44" width="34" height="126"/><rect x="190" y="41" width="34" height="129"/></g>
+<rect x="235" y="78" width="34" height="92" fill="#c0392b"/>
+<rect x="280" y="58" width="34" height="112" fill="#e08a7d"/><rect x="325" y="58" width="34" height="112" fill="#e08a7d"/><rect x="370" y="46" width="34" height="124" fill="#e8b4ab"/>
+<g font-size="11" fill="#333" text-anchor="middle"><text x="72" y="36">76</text><text x="117" y="34">77</text><text x="162" y="38">75</text><text x="207" y="35">76</text><text x="252" y="72" font-weight="700">54</text><text x="297" y="52">66</text><text x="342" y="52">66</text><text x="387" y="40">73</text></g>
+<g font-size="10" fill="#666" text-anchor="middle"><text x="72" y="186">pre</text><text x="117" y="186">pre</text><text x="162" y="186">pre</text><text x="207" y="186">pre</text><text x="252" y="186">12 Aug</text><text x="297" y="186">wk 2</text><text x="342" y="186">wk 3</text><text x="387" y="186">31 Aug</text></g>
+</svg>
+<div class="note">The four pre-release bars stand in for "flat at 75–78%" (six weeks of data; four shown). The step lands on release day, so it is not seasonal.</div>
+</div>
+<div class="card">
+<b>Missed pings, everyone else vs the four</b>
+<div class="label">Everyone else: about 2% → about 14%</div>
+<div class="bar"><div style="width:14%;background:#d98e04"></div></div>
+<div class="label" style="margin-top:14px">The four starved responders since 12 Aug: 59%</div>
+<div class="bar"><div style="width:59%;background:#c0392b"></div></div>
+<div class="label" style="margin-top:14px">Share of all pings going to the four: about 28% → about 9%</div>
+<div class="bar"><div style="width:28%;background:#1b5e8a"></div></div>
+<div class="bar"><div style="width:9%;background:#c0392b"></div></div>
+<div class="note">Only about 14% of missed pings became "gone before I could answer" tickets, so ticket volume understates the problem.</div>
+</div>
+</div>
+</section>
+
+<section class="dark" id="mechanism">
+<div class="kicker">Why it compounded</div>
+<h2>A missed ping was scored the same as a turn-down, and nothing ever gives points back.</h2>
+<div class="flow">
+<div class="box">Wait cut to 60s</div><span class="arr">→</span>
+<div class="box bad">More pings missed</div><span class="arr">→</span>
+<div class="box bad">Each miss costs −0.12 (a take is +0.08)</div><span class="arr">→</span>
+<div class="box bad">Lower rank, fewer pings</div><span class="arr">→</span>
+<div class="box bad">No pings means no way to earn points back</div>
+</div>
+<div class="loop">↻ the loop closes on itself: starved responders can't recover.</div>
+<div class="grid">
+<div class="card" style="color:var(--ink)"><b>Marcus's question answered</b><p class="finding">Weights are global. Nothing treats responders who turn pings down differently; it "fell out that way". The four weren't habitual turn-downs (21.6% vs 20.9% for everyone else).</p></div>
+<div class="card" style="color:var(--ink)"><b>Not explained yet</b><p class="finding">Why these four. They share one thing: 4–5 missed pings in 12–16 Aug (everyone else had 3 or fewer). Meteor Mite fell to 14 pings while The Gale, same area and handler, kept 69.</p></div>
+</div>
+<div class="note">From a snapshot of the routing code; not yet confirmed against production by Wen Li.</div>
+</section>
+
+<section id="modules">
+<div class="kicker">The evidence trail</div>
+<h2>One finding and the exact prompt behind it, for each module</h2>
+<p class="mute">Prompts are quoted verbatim from each module's prompts.md, typos included.</p>
+
+<div class="card mod" style="margin-top:20px"><div><div class="modnum">01</div><div class="modname">Origin Story</div></div><div>
+<span class="pill">Artifact: CLAUDE.md</span>
+<p class="finding">The working context: products, people, vocabulary, and a role-to-name map for wiki comments. It surfaced early that Priya's handoff had an error (who owns the numbers) and that "August is always soft" was her read, not data.</p>
+<div class="ptag">The prompt</div>
+<div class="prompt">I just joined Rook Industries as PM for Rook Dispatch. Use rook-wiki (search_wiki, then read_page or read_database). Read About Rook, Glossary, Team directory, Releases, Q3 roadmap, the product briefs, and 00-rook/company/notes/handoff-from-priya.docx. On the 4.2 release, comments use roles: map them with the Team directory. Add to CLAUDE.md what you'd need to help me do this job: the products, the people, the vocabulary, where things stand. Leave the session scope block at the top. Keep it under two pages.</div>
+</div></div>
+
+<div class="card mod" style="margin-top:16px"><div><div class="modnum">02</div><div class="modname">Super Hearing</div></div><div>
+<span class="pill">Finding: not seasonal</span> <span class="pill warn">No prompt saved</span>
+<p class="finding"><b class="hl">Acceptance sat at 75–78% for six weeks, then fell to 54% in the week of 12 Aug.</b> Missed pings went from 2–6 a week to 38. A step on release day is not a seasonal pattern, which contradicts the handoff's explanation.</p>
+<div class="note">Module 2's prompts.md is empty, so I can't quote the prompt that produced this. The finding is recorded in CLAUDE.md under "Data findings".</div>
+</div></div>
+
+<div class="card mod" style="margin-top:16px"><div><div class="modnum">03</div><div class="modname">Rewind</div></div><div>
+<span class="pill">Finding: the four, and the tickets</span>
+<p class="finding">Four responders (Farlight, Meteor Mite, The Undertow, Vesper) went from 11–15 pings a week to 1–5, nearly all missed. Their share of all pings fell from about 28% to about 9%. Every ticket claim I could check matched the ping counts, but only two of the four filed tickets at all.</p>
+<div class="ptag">The prompt that exposed it</div>
+<div class="prompt">Show me Vesper's full history of data.</div>
+<div class="ptag">The prompt that cross-checked it</div>
+<div class="prompt">Compare the support-tickets table on rook-database against the pings table. Do they agree with each other?</div>
+</div></div>
+
+<div class="card mod" style="margin-top:16px"><div><div class="modnum">04</div><div class="modname">X-Ray Vision</div></div><div>
+<span class="pill">Finding: the code scores a miss like a turn-down</span>
+<p class="finding">A missed ping costs −0.12, the same as a turn-down. A taken ping adds only +0.08. There is no decay (a 2019 TODO never built), so a quiet responder can't climb back without being pinged. This also answered Marcus's 14 Aug question: the change applied to everyone.</p>
+<div class="ptag">The prompt that found it</div>
+<div class="prompt">Find the part of this code that takes points off somebody when they miss a ping or turn one down. Show it to me and explain it in plain English. Then find me every single thing in this code that puts points back on.</div>
+<div class="ptag">The follow-up that made it a story</div>
+<div class="prompt">How can someone who has been quiet for a month get their score back up?</div>
+</div></div>
+
+<div class="card mod" style="margin-top:16px"><div><div class="modnum">05</div><div class="modname">Super Speed</div></div><div>
+<span class="pill">Artifact: brief.md + prototype.html</span>
+<p class="finding">The turning point: my first fix asked the responder to do something. I pushed back, and the direction became "the system fixes it": restore the 90s wait, stop counting misses against rank, let scores recover, and alert PM and engineering automatically when a responder's pings halve.</p>
+<div class="ptag">The prompt that changed the direction</div>
+<div class="prompt">This is not fixing the problem. Consider changing response time back to 90 minutes and revisiting the older code that affected scores</div>
+<div class="note">I wrote "90 minutes" and meant 90 seconds; the brief and prototype use seconds.</div>
+<div class="ptag">The prompt that set the design principle</div>
+<div class="prompt">Find a solution that doesn't put the onus on the responder</div>
+</div></div>
+
+<div class="card mod" style="margin-top:16px"><div><div class="modnum">06</div><div class="modname">Sidekicks</div></div><div>
+<span class="pill">Artifact: review-checklist skill + Monday schedule</span> <span class="pill warn">prompts.md is empty</span>
+<p class="finding">The skill is the sidekick: a four-point brief review that runs the same way every time and is scheduled for Monday mornings. Its first run failed my own brief on owner and scope, which I then fixed. The prompt that built it is saved under Module 5's file (prompt 21), below. Module 6's own prompts.md has no entries yet; this report is that session's work.</p>
+<div class="ptag">The prompt that created it</div>
+<div class="prompt">I want to save a habit as something I can reuse. When I review a brief before it goes any further, here's what I actually check for: - It names who owns it - It says how we'll know it worked - The scope at the end matches the scope at the start - It explains the problem before it proposes a fix Turn that into a skill called review-checklist, so I can point it at any brief and get the same check every time, without me explaining it again</div>
+</div></div>
+</section>
+
+<section class="dark" id="fix">
+<div class="kicker">The fix</div>
+<h2>Seen from the person it happens to, not as "a setting".</h2>
+<div class="grid" style="margin-bottom:10px">
+<div class="card" style="color:var(--ink)"><b>1 · Restore the 90s wait</b><div class="label">Main suspect for the misses. Proximity change stays; measure after.</div></div>
+<div class="card" style="color:var(--ink)"><b>2 · Stop scoring misses as turn-downs</b><div class="label">A miss is not a refusal.</div></div>
+<div class="card" style="color:var(--ink)"><b>3 · Let scores recover over time</b><div class="label">Builds the 2019 TODO. Recovery period (placeholder ~6 days) is for Wen Li to set.</div></div>
+<div class="card" style="color:var(--ink)"><b>4 · One-time reset + auto-alert</b><div class="label">Neutral reset on release; alert PM and eng when a responder's pings halve.</div></div>
+</div>
+<p class="mute">Try it: pick Kip (Meteor Mite) or Aunt Dot (Vesper), read the responder's quiet-week message, then press "Incoming ping" for the 90-second timer. Location and capability on that screen are invented; nothing is connected to Dispatch.</p>
+<iframe src="05-super-speed/prototype.html" title="Gone quiet prototype"></iframe>
+<div class="note">Open it full size: <a href="05-super-speed/prototype.html" style="color:#7fc0ee">prototype.html</a> · Read the one-pager: <a href="05-super-speed/brief.md" style="color:#7fc0ee">brief.md</a>. Prototype not browser-tested by me.</div>
+</section>
+
+<section id="skill">
+<div class="kicker">Keeping it from happening again</div>
+<h2>The review-checklist skill checks every brief the same four ways.</h2>
+<p class="lead">4.2 shipped two changes together, with no written reason for 60s, no owner after Priya left, and a Q3 commitment conversation that never happened. Each of those is a gap the checklist catches before a brief goes further.</p>
+<div class="grid">
+<div class="card"><b>1 · Owner</b><p class="finding">Names who owns it, in one clear place. (Every Q3 roadmap item listed Priya; the Phone App brief named Sofia.)</p></div>
+<div class="card"><b>2 · Success measure</b><p class="finding">Metric, baseline and target. (Bulk Callout never set a baseline.)</p></div>
+<div class="card"><b>3 · Scope consistency</b><p class="finding">Scope at the end matches the start. (Approval Chains crept into a dashboard and a spreadsheet replacement.)</p></div>
+<div class="card"><b>4 · Problem before fix</b><p class="finding">Evidence first, then the proposal. (The 4.2 changes had no recorded problem statement.)</p></div>
+</div>
+<table style="margin-top:22px">
+<tr><th>First run on 05-super-speed/brief.md</th><th>Before</th><th>After fixes</th></tr>
+<tr><td>Owner</td><td style="color:var(--red)">Fail</td><td style="color:var(--green)">Owner and stakeholder lines added</td></tr>
+<tr><td>Success measure</td><td style="color:var(--amber)">Unclear</td><td style="color:var(--green)">Table with baselines and targets</td></tr>
+<tr><td>Scope consistency</td><td style="color:var(--red)">Fail</td><td style="color:var(--green)">Bulleted In scope / Not in this / Risks</td></tr>
+<tr><td>Problem before solution</td><td>Pass</td><td>Problem section shortened</td></tr>
+</table>
+<p class="note">Scheduled as <b>monday-review-checklist</b>, about 9:00 every Monday, reviewing brief.md and brief-*.md in this folder. It runs only while the app is open and doesn't cover the wiki briefs. The success targets in the brief (10+ pings a week for the four within 4 weeks, tickets back to about 6.5 a week, alert within 3 days) are my proposals, not agreed.</p>
+</section>
+
+<section class="dark" id="open">
+<div class="kicker">Still open</div>
+<h2>What I haven't confirmed, and who I need.</h2>
+<div class="grid">
+<div class="card" style="color:var(--ink)"><b>Wen Li</b><p class="finding">Confirm the mechanism, set the recovery period, say whether a restart resets scores and whether the snapshot matches production. Routing scores for the four on 11–12 Aug.</p></div>
+<div class="card" style="color:var(--ink)"><b>Ravi</b><p class="finding">Hasn't checked my numbers against the official weekly report or last August.</p></div>
+<div class="card" style="color:var(--ink)"><b>Helen</b><p class="finding">Hasn't agreed to reverse the wait, the success targets, or which Q3 items are still commitments.</p></div>
+<div class="card" style="color:var(--ink)"><b>Marcus</b><p class="finding">Effort, 4.3, and the overlap with the slipped Availability Confidence item.</p></div>
+</div>
+<p class="mute" style="margin-top:20px">Also: call the four handlers; watch Corporal Ashgrove and Halfmoon, who slid about 25%. Nothing in the sources after 7 Sep.</p>
+</section>
+</body></html>
