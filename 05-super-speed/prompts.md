@@ -42,7 +42,7 @@ Is there a solution that would not requires the responder in indicate their read
 Yes update the brief and the prototype
 
 ### 10.
-This is not fixing the problem. Consider changing response time back to 90 minutes and revisiting the older code that affected scores
+This is not fixing the problem. Consider changing response time back to 90 seconds and revisiting the older code that affected scores
 
 ### 11.
 Update the brief and the prototype
