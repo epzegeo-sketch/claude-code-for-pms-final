@@ -3,49 +3,107 @@
 <style>
 body{font-family:Arial,sans-serif;margin:24px;background:#f4f4f4;color:#222}
 h1{font-size:18px} .note{font-size:13px;color:#666;margin-bottom:16px}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tabs button.active{background:#1b5e8a;color:#fff;border-color:#1b5e8a}
 .wrap{display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start}
-.card{background:#fff;border:1px solid #ccc;border-radius:6px;padding:14px;width:330px;margin-bottom:12px}
+.card{background:#fff;border:1px solid #ccc;border-radius:6px;padding:14px;width:340px;margin-bottom:12px}
 .card h2{margin:0 0 4px;font-size:16px} .stat{font-size:13px;color:#555}
+.head{display:flex;justify-content:space-between;align-items:center}
+.badge{font-size:12px;padding:3px 10px;border-radius:4px;background:#fff3cd;color:#7a5a00}
+.badge.ok{background:#e6f4ea;color:#1e6b34}
 .flag{background:#fff3cd;border:1px solid #e0b84a;border-radius:4px;padding:8px;margin:10px 0;font-size:13px}
+.flag.ok{background:#e6f4ea;border-color:#7bb88a}
+.plain{background:#f4f4f4;border-radius:4px;padding:8px;margin:10px 0;font-size:13px;color:#555}
 button{font-size:14px;padding:8px 12px;border-radius:4px;border:1px solid #888;background:#fff;cursor:pointer}
 button.primary{background:#1b5e8a;color:#fff;border-color:#1b5e8a}
 .phone{width:280px;height:420px;border:8px solid #333;border-radius:28px;background:#fff;padding:16px;box-sizing:border-box}
-.phone h3{margin-top:0;font-size:16px} .phone p{font-size:14px} .ok{color:#2e7d32;font-weight:bold}
+.phone h3{margin-top:0;font-size:16px} .phone p{font-size:14px} .okc{color:#2e7d32;font-weight:bold}
 .hidden{display:none} .log{font-size:12px;color:#555;margin-top:8px}
 </style></head><body>
 <h1>Gone quiet: handler console and responder phone</h1>
-<div class="note">Click through. Numbers are Vesper's and The Gale's real weekly pings from the database (to 6 Sep). Nothing here is connected to Dispatch.</div>
+<div class="note">Pick an example, then click "Mark ready". Numbers are real weekly pings from the database (week of 31 Aug). Nothing here is connected to Dispatch. The responder never has to tap anything. Shows the state after the 90s wait is restored and the scoring fix has shipped. Vesper and Meteor Mite are two examples of the same problem.</div>
+<div class="tabs">
+ <button id="tab-mm" class="active">Kip: Meteor Mite</button>
+ <button id="tab-ve">Aunt Dot: Vesper</button>
+</div>
 <div class="wrap">
  <div>
-  <b>Handler console (Kip, Aunt Dot)</b><br><br>
-  <div class="card" id="vesper">
-   <h2>Vesper</h2><div class="stat">Handler: Aunt Dot &middot; this week: <span id="vp">1</span> ping</div>
-   <div class="flag" id="flag"><b>Gone quiet.</b> 1 ping this week, usually 13-15. 5 of the last 8 were missed.<br>
-    <small>Missed pings no longer lower their place in the order. Their place in the order has not recovered yet.</small></div>
-   <button class="primary" id="send">Send ready check</button>
-   <div class="log" id="log">A ready check is a message, not a callout. Nothing is offered to Vesper.</div>
+  <b id="consoleTitle"></b><br><br>
+  <div class="card">
+   <div class="head"><h2 id="rName"></h2><span class="badge" id="badge">Gone quiet</span></div>
+   <div class="stat" id="rStat"></div>
+   <div class="flag" id="flag"></div>
+   <button class="primary" id="mark">Mark ready</button>
+   <div class="log" id="log"></div>
   </div>
-  <div class="card"><h2>The Gale</h2><div class="stat">Handler: Kip &middot; this week: 21 pings, 16 taken</div></div>
+  <div class="card" id="otherCard">
+   <div class="head"><h2>The Gale</h2><span class="badge ok">Steady</span></div>
+   <div class="stat">Area: Eastgate &middot; this week: 21 pings</div>
+   <div class="plain">16 taken, 3 turned down, 2 missed. Usual range 12-14 pings a week, now busier than normal.</div>
+  </div>
  </div>
  <div>
-  <b>Responder phone (Vesper)</b><br><br>
+  <b id="phoneTitle"></b><br><br>
   <div class="phone">
    <div id="s0"><h3>Pings have been rare lately</h3>
-    <p>Some pings went unanswered after the 12 Aug update, and that moved you down the order. It was not something you did wrong, and nobody has dropped you.</p>
-    <p>Your handler can send a ready check. Waiting to hear from them.</p>
-    <button id="sim" class="hidden">Show ready check</button></div>
-   <div id="s1" class="hidden"><h3>Ready check from Aunt Dot</h3>
-    <p>Tap if you're here and your phone is working. This is not a callout. Tapping puts you back to a neutral place in the order, not the top.</p>
-    <button class="primary" id="tap">I'm here, phone works</button></div>
-   <div id="s2" class="hidden"><h3 class="ok">Thanks, you're back</h3>
-    <p>You're back in the normal order for the next callout. You may not be pinged first, but you will be considered like everyone else.</p></div>
+    <p>After the 12 Aug update the time to answer a ping was cut to 60 seconds. Some pings went unanswered, and that lowered your place in the order. Nobody has dropped you.</p>
+    <p id="p0b"></p></div>
+   <div id="s1" class="hidden"><h3 class="okc">You're back in the order</h3>
+    <p id="p1"></p></div>
+   <div id="s2" class="hidden"><h3>Callout offered to you</h3>
+    <p style="margin:0 0 4px">Structural-entry callout, Eastgate. About 12 minutes away.</p>
+    <p style="font-size:12px;color:#666;margin:0 0 10px">Ping 1 of the order. Answer before the timer runs out or it moves to the next responder.</p>
+    <div style="text-align:center;font-size:36px;font-weight:bold" id="timer">1:30</div>
+    <div style="height:8px;background:#e0e0e0;border-radius:4px;margin:8px 0 14px"><div id="bar" style="height:8px;width:100%;background:#1b5e8a;border-radius:4px"></div></div>
+    <div id="pingBtns"><button class="primary" id="take" style="width:100%;margin-bottom:8px">Take it</button><button id="decline" style="width:100%">Turn down</button></div>
+    <p id="pingResult" style="font-size:13px"></p></div>
   </div>
+  <div style="margin-top:12px"><button id="showStatus">Quiet-week message</button> <button id="showPing">Incoming ping</button></div>
  </div>
 </div>
 <script>
 const $=id=>document.getElementById(id);
-$('send').onclick=()=>{$('log').textContent='Ready check sent to Vesper. Waiting for a tap.';$('send').disabled=true;$('s0').classList.add('hidden');$('s1').classList.remove('hidden');};
-$('tap').onclick=()=>{$('s1').classList.add('hidden');$('s2').classList.remove('hidden');
- $('flag').innerHTML='<b>Back in the order.</b> Vesper confirmed ready. Watch for pings over the next few days.';
- $('flag').style.background='#e6f4ea';$('flag').style.borderColor='#7bb88a';$('log').textContent='Vesper tapped: here, phone works. Place in order reset to neutral.';};
+const data={
+ mm:{handler:'Kip',name:'Meteor Mite',title:"Handler console (Kip, 2 responders)",
+  stat:'Area: Eastgate &middot; this week: 1 ping',usual:'10-12',missed:'4 of the last 7',other:true},
+ ve:{handler:'Aunt Dot',name:'Vesper',title:"Handler console (Aunt Dot)",
+  stat:'Handler: Aunt Dot &middot; this week: 1 ping',usual:'13-15',missed:'5 of the last 8',other:false}
+};
+let cur='mm';
+function render(k){
+ cur=k;const d=data[k];
+ $('tab-mm').classList.toggle('active',k==='mm');$('tab-ve').classList.toggle('active',k==='ve');
+ $('consoleTitle').textContent=d.title;$('phoneTitle').textContent='Responder phone ('+d.name+')';
+ $('rName').textContent=d.name;$('rStat').innerHTML=d.stat;
+ $('badge').textContent='Gone quiet';$('badge').classList.remove('ok');
+ $('flag').classList.remove('ok');
+ $('flag').innerHTML='<b>Gone quiet.</b> 1 ping this week, usually '+d.usual+'. '+d.missed+' were missed.<br><small>Ping wait is back to 90 seconds, missed pings no longer lower their place in the order, and it is recovering on its own. Expected back to normal in about 6 days (placeholder).</small>';
+ $('mark').disabled=false;$('mark').textContent='Mark ready';
+ $('log').textContent='Puts '+d.name+' back to a neutral place in the order now, not the top. Sends nothing to their phone.';
+ $('otherCard').classList.toggle('hidden',!d.other);
+ $('p0b').textContent="You now have 90 seconds to answer again, and your place is recovering on its own. You don't need to do anything.";
+ $('p1').textContent=d.handler+" has put you back to a normal place in the order. You may not be pinged first, but you will be considered like everyone else for the next callout.";
+ $('s0').classList.remove('hidden');$('s1').classList.add('hidden');stopPing();
+}
+let tick=null;
+function stopPing(){clearInterval(tick);$('s2').classList.add('hidden');}
+function showPing(){
+ clearInterval(tick);$('s0').classList.add('hidden');$('s1').classList.add('hidden');$('s2').classList.remove('hidden');
+ $('pingBtns').classList.remove('hidden');$('pingResult').textContent='';
+ let left=90;const paint=()=>{$('timer').textContent=Math.floor(left/60)+':'+String(left%60).padStart(2,'0');$('bar').style.width=(left/90*100)+'%';};
+ paint();
+ tick=setInterval(()=>{left--;paint();if(left<=0){clearInterval(tick);$('pingBtns').classList.add('hidden');
+  $('pingResult').textContent='Time ran out. The callout has gone to the next responder. This does not lower your place in the order.';}},1000);
+}
+$('take').onclick=()=>{clearInterval(tick);$('pingBtns').classList.add('hidden');$('pingResult').textContent='Taken. The callout is yours.';};
+$('decline').onclick=()=>{clearInterval(tick);$('pingBtns').classList.add('hidden');$('pingResult').textContent='Turned down. The callout has gone to the next responder.';};
+$('showPing').onclick=showPing;
+$('showStatus').onclick=()=>{stopPing();const done=$('mark').disabled;$('s0').classList.toggle('hidden',done);$('s1').classList.toggle('hidden',!done);};
+$('mark').onclick=()=>{stopPing();const d=data[cur];$('mark').disabled=true;$('mark').textContent='Marked ready';
+ $('s0').classList.add('hidden');$('s1').classList.remove('hidden');
+ $('flag').innerHTML='<b>Back in the order.</b> Marked ready by you. Watch for pings over the next few days.';
+ $('flag').classList.add('ok');$('badge').textContent='Back in order';$('badge').classList.add('ok');
+ $('log').textContent='Place in order reset to neutral. Nothing was sent to '+d.name+' as a callout.';};
+$('tab-mm').onclick=()=>render('mm');$('tab-ve').onclick=()=>render('ve');
+render('mm');
 </script></body></html>
